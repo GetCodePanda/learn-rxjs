@@ -767,3 +767,424 @@
 // //log to console
 // //ex. emitted buffers [4,5,6]...[9,10,11]
 // const subscribe = bufferToggleInterval.subscribe(val => console.log('Emitted Buffer:', val));
+
+
+// //emit 'Hello' and 'Goodbye'
+// const source = Rx.Observable.of('Hello', 'Goodbye');
+// // map value from source into inner observable, when complete emit result and move to next
+// const example = source.concatMap(val => Rx.Observable.of(`${val} World!`));
+// //output: 'Example One: 'Hello World', Example One: 'Goodbye World'
+// const subscribe = example
+//   .subscribe(val => console.log('Example One:', val));
+
+// //emit 'Hello' and 'Goodbye'
+// const source = Rx.Observable.of('Hello', 'Goodbye');
+// //example with promise
+// const examplePromise = val => new Promise(resolve => resolve(`${val} World!`));
+// // map value from source into inner observable, when complete emit result and move to next
+// const example = source.concatMap(val => examplePromise(val))
+// //output: 'Example w/ Promise: 'Hello World', Example w/ Promise: 'Goodbye World'
+// const subscribe = example.subscribe(val => console.log('Example w/ Promise:', val));
+
+// //emit 'Hello' and 'Goodbye'
+// const source = Rx.Observable.of('Hello', 'Goodbye');
+// //example with promise
+// const examplePromise = val => new Promise(resolve => resolve(`${val} World!`));
+// //result of first param passed to second param selector function before being  returned
+// const example = source.concatMap(val => examplePromise(val), result => `${result} w/ selector!`);
+// //output: 'Example w/ Selector: 'Hello w/ Selector', Example w/ Selector: 'Goodbye w/ Selector'
+// const subscribe = example.subscribe(val => console.log('Example w/ Selector:', val));
+
+// const concatMapSub = Rx.Observable.of(2000, 1000 , 6000)
+// .concatMap(v => Rx.Observable.of(v).delay(v))
+// // concatMap: 2000, concatMap: 1000
+// .subscribe(v => console.log('concatMap:', v))
+
+// const mergeMapSub = Rx.Observable.of(2000, 1000 ,500)
+// .mergeMap(v => Rx.Observable.of(v).delay(v))
+// // mergeMap: 1000, mergeMap: 2000
+// .subscribe(v => console.log('mergeMap:', v))
+
+// //emit value every 2 seconds
+// const message = Rx.Observable.of('Second(s) elapsed!');
+// //when interval emits, subscribe to message until complete, merge for result
+// const interval = Rx.Observable
+//                     .interval(2000)
+//                     .concatMapTo(message, (time, msg) => `${time} ${msg}`);
+// //log values
+// //output: '0 Second(s) elapsed', '1 Second(s) elapsed'
+// const subscribe =  interval.subscribe(val => console.log(val));
+
+
+// //emit value every 2 seconds
+// const interval = Rx.Observable.interval(2000);
+// //emit value every second for 5 seconds
+// const source = Rx.Observable.interval(1000).take(5);
+// /* 
+//   ***Be Careful***: In situations like this where the source emits at a faster pace
+//   than the inner observable completes, memory issues can arise.
+//   (interval emits every 1 second, basicTimer completes every 5)
+// */
+// //basicTimer will complete after 5 seconds, emitting 0,1,2,3,4
+// const example = interval
+//     .concatMapTo(source, 
+//       (firstInterval, secondInterval) => `${firstInterval} ${secondInterval}`
+//    );
+
+// const subscribe = example.subscribe(val => console.log(val));
+
+// //emit 2
+// const source = Rx.Observable.of(2);
+// const example = source
+//   //recursively call supplied function
+//   .expand(val => {
+//        //2,3,4,5,6
+//        console.log(`Passed value: ${val}`);
+//        //3,4,5,6
+//        return Rx.Observable.of(1 + val);
+//     })
+//   //call 5 times
+//   .take(5);
+// /*
+//     "RESULT: 2"
+//     "Passed value: 2"
+//     "RESULT: 3"
+//     "Passed value: 3"
+//     "RESULT: 4"
+//     "Passed value: 4"
+//     "RESULT: 5"
+//     "Passed value: 5"
+//     "RESULT: 6"
+//     "Passed value: 6"
+// */
+// //output: 2,3,4,5,6
+// const subscribe = example.subscribe(val => console.log(`RESULT: ${val}`));
+
+// const people = [{name: 'Sue', age:25},{name: 'Joe', age: 30},{name: 'Frank', age: 25}, {name: 'Sarah', age: 35}];
+// //emit each person
+// const source = Rx.Observable.from(people);
+// //group by age
+// const example = source
+//   .groupBy(person => person.age)
+//   //return as array of each group
+//   .flatMap(group => group.reduce((acc, curr) => [...acc, curr], []))
+// /*
+//   output:
+//   [{age: 25, name: "Sue"},{age: 25, name: "Frank"}]
+//   [{age: 30, name: "Joe"}]
+//   [{age: 35, name: "Sarah"}]
+// */
+// const subscribe = example.subscribe(val => console.log(val));
+
+// //emit (1,2,3,4,5)
+// const source = Rx.Observable.from([1,2,3,4,5]);
+// //add 10 to each value
+// const example = source.map(val => val + 10);
+// //output: 11,12,13,14,15
+// const subscribe = example.subscribe(val => console.log(val));
+
+// emit ({name: 'Joe', age: 30}, {name: 'Frank', age: 20},{name: 'Ryan', age: 50})
+// const source = Rx.Observable.from([{name: 'Joe', age: 30}, {name: 'Frank', age: 20},{name: 'Ryan', age: 50}]);
+// //grab each persons name
+// const example = source.map(person => person.name);
+// //output: "Joe","Frank","Ryan"
+// const subscribe = example.subscribe(val => console.log(val));
+
+// //emit value every two seconds
+// const source = Rx.Observable.interval(2000);
+// //map all emissions to one value
+// const example = source.mapTo('HELLO WORLD!');
+// //output: 'HELLO WORLD!'...'HELLO WORLD!'...'HELLO WORLD!'...
+// const subscribe = example.subscribe(val => console.log(val));
+
+// //emit every click on document
+// const source = Rx.Observable.fromEvent(document, 'click');
+// //map all emissions to one value
+// const example = source.mapTo('GOODBYE WORLD!');
+// //output: (click)'GOODBYE WORLD!'...
+// const subscribe = example.subscribe(val => console.log(val)); 
+
+// //emit 'Hello'
+// const source = Rx.Observable.of('Hello');
+// //map to inner observable and flatten
+// const example = source.mergeMap(val => Rx.Observable.of(`${val} World!`));
+// //output: 'Hello World!'
+// const subscribe = example.subscribe(val => console.log(val));
+
+// //emit 'Hello'
+// const source = Rx.Observable.of('Hello');
+// //mergeMap also emits result of promise
+// const myPromise = val => new Promise(resolve => resolve(`${val} World From Promise!`));
+// //map to promise and emit result
+// const example = source.mergeMap(val => myPromise(val));
+// //output: 'Hello World From Promise'
+// const subscribe = example.subscribe(val => console.log(val));
+
+/*
+  you can also supply a second argument which receives the source value and emitted
+  value of inner observable or promise
+*/
+// //emit 'Hello'
+// const source = Rx.Observable.of('Hello');
+// //mergeMap also emits result of promise
+// const myPromise = val => new Promise(resolve => resolve(`${val} World From Promise!`));
+// const example = source
+//   .mergeMap(val => myPromise(val), 
+//     (valueFromSource, valueFromPromise) => {
+//       return `Source: ${valueFromSource}, Promise: ${valueFromPromise}`;
+// });
+// //output: "Source: Hello, Promise: Hello World From Promise!"
+// const subscribe = example.subscribe(val => console.log(val));
+
+
+/*
+  you can also supply a second argument which receives the source value and emitted
+  value of inner observable or promise
+*/
+// //emit 'Hello'
+// const source = Rx.Observable.of('Hello');
+// //mergeMap also emits result of promise
+// const myPromise = val => new Promise(resolve => resolve(`${val} World From Promise!`));
+// const example = source
+//   .mergeMap(val => myPromise(val), 
+//     (valueFromSource, valueFromPromise) => {
+//       return `Source: ${valueFromSource}, Promise: ${valueFromPromise}`;
+// });
+// //output: "Source: Hello, Promise: Hello World From Promise!"
+// const subscribe = example.subscribe(val => console.log(val));
+
+
+// //emit 'Hello'
+// const source = Rx.Observable.of('Hello');
+// //mergeMap also emits result of promise
+
+// const myPromise = val => new Promise(resolve => resolve(`${val} World From Promise!`));
+// const example = source
+//   .mergeMap(val => myPromise(val), 
+//     (valueFromSource, valueFromPromise) => {
+//       return `Source: ${valueFromSource}, Promise: ${valueFromPromise}`;
+// });
+
+// //output: "Source: Hello, Promise: Hello World From Promise!"
+// const subscribe = example.subscribe(val => console.log(val));
+
+//emit value every 1s
+// const source = Rx.Observable.interval(1000);
+
+// const example = source.mergeMap(
+//     //project
+//     val => Rx.Observable.interval(5000).take(2),
+//   //resultSelector
+//   (oVal, iVal, oIndex, iIndex) => [oIndex, oVal, iIndex, iVal],
+//   //concurrent
+//   2 
+// );  
+
+// const subscribe = example.subscribe(val => console.log(val));
+
+// const source = Rx.Observable.from([1,2,3,4,5,6]);
+// //first value is true, second false
+// const [evens, odds] = source.partition(val => val % 2 === 0);
+
+// evens.subscribe((v)=> console.log(v));
+// odds.subscribe((v)=> console.log(v));
+
+// const source = Rx.Observable.from([
+//   {name: 'Joe', 
+//   child:{
+//     name:'sure'
+//   },
+//   age: 30},
+//   {name: 'Sarah', age:35}
+// ]);
+// //grab names
+// const example = source.pluck('child');
+// //output: "Joe", "Sarah"
+// const subscribe = example.subscribe(val => console.log(val));
+
+// const source = Rx.Observable.from([
+//   {name: 'Joe', age: 30, job: {title: 'Developer', x: {mylang: 'JavaScript'}}},
+//   //will return undefined when no job is found
+//   {name: 'Sarah', age:35}
+// ]);
+// //grab title property under job
+// const example = source.pluck('job', 'x' , 'mylang');
+// //output: "Developer" , undefined
+// const subscribe = example.subscribe(val => console.log(val));
+
+
+// const source = Rx.Observable.from([1,2,3,4,5,6]);
+// const example = source
+//   .map(val => {
+//     if(val > 3){
+//       return {error: val};
+//     }
+//     return {success: val};
+//   });
+// const [mySuccess, myError ] = example.partition(res => res.success)
+
+// mySuccess.subscribe(v => console.log(v));
+// myError.subscribe(v => console.log(v));
+
+// const source = Rx.Observable.of(1, 2, 3, 4);
+// const example = source.reduce((acc,val) => acc + val);
+// //output: Sum: 10'
+// const subscribe = example.subscribe(val => console.log('Sum:', val));
+
+// const subject = new Rx.Subject();
+// //basic scan example, sum over time starting with zero
+// const example = subject
+//   .startWith(0)
+//   .scan((acc, curr) => acc + curr);
+// //log accumulated values
+// const subscribe = example.subscribe(val => console.log('Accumulated total:', val));
+// //next values into subject, adding to the current sum
+// subject.next(1); //1
+// subject.next(2); //3
+// subject.next(3); //6
+
+
+// const subject = new Rx.Subject();
+// //scan example building an object over time
+// const example = subject.scan((acc, curr) => Object.assign({}, acc, curr), {});
+// //log accumulated values
+// const subscribe = example.subscribe(val => console.log('Accumulated object:', val));
+// //next values into subject, adding properties to object
+// subject.next({name: 'Joe'}); // {name: 'Joe'}
+// subject.next({age: 30}); // {name: 'Joe', age: 30}
+// subject.next({favoriteLanguage: 'JavaScript'}); // {name: 'Joe', age: 30, favoriteLanguage: 'JavaScript'}
+
+// // Accumulate values in an array, emit random values from this array.
+// const scanObs = Rx.Observable.interval(1000)
+// .scan((a,c) => a.concat(c), [])
+// .map(r => r[Math.floor(Math.random()*r.length)])
+// .distinctUntilChanged()
+// .subscribe(console.log);
+
+//emit immediately, then every 5s
+// con
+
+// Accumulate values in an array, emit random values from this array.
+// const scanObs = Rx.Observable.interval(1000)
+// .scan((a,c) => a.concat(c), [])
+// // .map(r => r[Math.floor(Math.random()*r.length)])
+// // .distinctUntilChanged()
+// .subscribe(console.log);
+
+
+// Rx.Observable.of('3').subscribe(console.log)
+
+// [12,3,4].map(alert)
+
+// //emit immediately, then every 5s
+// const source = Rx.Observable.timer(0, 5000);
+// //switch to new inner observable when source emits, emit items that are emitted
+// const example = source.switchMap(() => Rx.Observable.interval(500));
+// //output: 0,1,2,3,4,5,6,7,8,9...0,1,2,3,4,5,6,7,8
+// const subscribe = example.subscribe(val => console.log(val));
+
+
+// //emit every click
+// const source = Rx.Observable.fromEvent(document, 'click');
+// //if another click comes within 3s, message will not be emitted
+// const example = source.switchMap(val => Rx.Observable.interval(3000).mapTo('Hello, I made it!'));
+// //(click)...3s...'Hello I made it!'...(click)...2s(click)...
+// const subscribe = example.subscribe(val => console.log(val));
+
+
+// //emit immediately, then every 5s
+// const source = Rx.Observable.timer(0, 5000);
+// //switch to new inner observable when source emits, emit items that are emitted
+// const example = source.switchMap(() => Rx.Observable.interval(500));
+// //output: 0,1,2,3,4,5,6,7,8,9...0,1,2,3,4,5,6,7,8
+// const subscribe = example.subscribe(console.log);
+
+// const countdownSeconds = 60;
+// const setHTML = id => val => document.getElementById(id).innerHTML = val;
+// const pauseButton = document.getElementById('pause');
+// const resumeButton = document.getElementById('resume');
+// const interval$ = Rx.Observable.interval(1000).mapTo(-1);
+
+// const pause$ = Rx.Observable.fromEvent(pauseButton, 'click').mapTo(Rx.Observable.of(false))
+// const resume$ = Rx.Observable.fromEvent(resumeButton, 'click').mapTo(interval$);
+
+// const timer$ = Rx.Observable
+//   .merge(pause$, resume$)
+//   .startWith(interval$)
+//   .switchMap(val => val)
+//   // if pause button is clicked stop countdown
+//   .scan((acc, curr) => curr ? curr + acc : acc, countdownSeconds)
+//   .subscribe(setHTML('remaining'));
+
+// const input = document.getElementById('example');
+
+// //for every keyup, map to current input value
+// const example = Rx.Observable
+//   .fromEvent(input, 'keyup')
+//   .map(i => i.currentTarget.value);
+
+// //wait .5s between keyups to emit current value
+// //throw away all other values
+// const debouncedInput = example.debounceTime(2000).distinctUntilChanged();
+
+// //log values
+// const subscribe = debouncedInput.subscribe(val => {
+//   console.log(`Debounced Input: ${val}`);
+// });
+
+// const sampleObject = {name: 'Test'};
+// //Objects must be same reference
+// const myArrayWithDuplicateObjects = Rx.Observable.from([sampleObject, sampleObject, sampleObject]);
+// //only out distinct objects, based on last emitted value
+// const nonDistinctObjects = myArrayWithDuplicateObjects
+//   .distinctUntilChanged()
+//   //output: 'DISTINCT OBJECTS: {name: 'Test'}
+//   .subscribe(val => console.log('DISTINCT OBJECTS:', val));
+
+
+// //emit immediately then every 1s
+// const source = Rx.Observable.timer(0, 1000);
+// const example = source
+//   .window(Rx.Observable.interval(3000))
+// const count = example.scan((acc, curr) => acc + 1, 0)          
+
+// const subscribe = count.subscribe(val => console.log(`Window ${val}:`));
+// const subscribeTwo = example.mergeAll().subscribe(val => console.log(val));
+
+
+// //emit every 1s
+// const source = Rx.Observable.of('a','s','d','d1','d2');
+// const example = source
+//     //start new window every 4 emitted values
+//     .windowCount(2)
+//     .do(() => console.log('NEW WINDOW!'))
+
+// const subscribeTwo = example 
+//   //window emits nested observable
+//   .mergeAll()
+
+//   .subscribe(val => console.log(val));
+
+
+// //emit immediately then every 1s
+// const source = Rx.Observable.timer(0,1000);
+// const example = source
+//     .windowTime(3000)
+//     .do(() => console.log('NEW WINDOW!'))
+
+// const subscribeTwo = example 
+//   .mergeAll()
+
+//   .subscribe(val => console.log(val));
+
+// //emit immediately then every 1s
+// const source = Rx.Observable.timer(0,1000);
+// const example = source
+//     //close window every 5s and emit observable of collected values from source
+//     .windowWhen((val) => Rx.Observable.interval(5000))
+//     .do(() => console.log('NEW WINDOW!'))
+
+// const subscribeTwo = example 
+//   //window emits nested observable
+//   .mergeAll()
+//   .subscribe(val => console.log(val));

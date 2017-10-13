@@ -21,3 +21,4 @@ input.pluck('target', 'value').distinct()
 input.plunk('target', 'value')
 .distinctUnitChange()
 .subscribe(value => console.log(value));
+
